@@ -1,30 +1,36 @@
-# Model-Contrastive Learning
+# Dynamic Backdoor Trigger Elimination using Model Contrastive Learning and Triple Marginal Loss
+This repository contains an implementation for eliminating backdoor triggers embedded in images, particularly addressing poison label attacks such as Trojan, BadNets, and Blend. The solution is built upon Model Contrastive Learning and Triple Marginal Loss techniques. Additionally, the code implements a Dynamic Patching algorithm, enabling the model to train with different trigger patterns at runtime for enhanced robustness.
 
-This is an implementation demo of our paper Model-Contrastive Learning for Backdoor Elimination in PyTorch.
+# Features:
+- Model Contrastive Learning: Utilizes contrastive learning techniques to enhance the model's ability to discriminate between clean and poisoned data.
+- Triple Marginal Loss (TML): Implements TML for training robust models against poison label attacks. TML effectively minimizes the impact of backdoor triggers during model training.
+- Dynamic Patching Algorithm: Incorporates a dynamic patching algorithm, enabling the model to adapt to different trigger patterns during runtime. This enhances the model's resilience against evolving attack strategies.
+- K-Means Clustering for Pseudo-Label Generation: Employs K-Means clustering to generate pseudo-labels for training with TML. This helps in effectively identifying and mitigating the influence of poisoned data during training. 
 
 ![Python 3.8](https://img.shields.io/badge/python-3.8-DodgerBlue.svg?style=plastic)
 ![Pytorch 1.9](https://img.shields.io/badge/pytorch-1.9-DodgerBlue.svg?style=plastic)
 ![CUDA 11.2](https://img.shields.io/badge/cuda-11.2-DodgerBlue.svg?style=plastic)
 ![License CC BY-NC](https://img.shields.io/badge/license-CC_BY--NC-DodgerBlue.svg?style=plastic)
 
-## MCL: Quick start with pretrained model
+## MCL++: Quick start with pretrained model
 We have already uploaded the `all2one` pretrained backdoor model(i.e. gridTrigger WRN-16-1, target label 5).
 
-For evaluating the performance of  MCL, you can easily run command:
+Install the requirements using the following command:
+```bash
+$ pip install -r requirements.txt
+```
+For evaluating the performance of  MCL++, you can easily run command:
 
 ```bash
-$ python main.py 
+$ python MCL++_defense.py
 ```
 where the default parameters are shown in `config.py`.
 
 The trained model will be saved at the path `weight/<name>.tar`
 
-Please carefully read the `main.py` and `configs.py`, then change the parameters for your experiment.
+Please carefully read the `MCL++_defense.py` and `configs.py`, then change the parameters for your experiment.
 
 
-| Dataset  | Baseline ACC | Baseline ASR | MCLDef ACC | MCLDef ASR |
-| -------- | ------------ | ------------ | ------- | ------- |
-| CIFAR-10 | 83.01        | 99.64        | 82.29   | 1.92    |
 
 ---
 
@@ -36,12 +42,11 @@ For implementing backdoor attack(e.g. GridTrigger attack), you can run the below
 ```bash
 $ python train_badnet.py
 ```
-This command will train the backdoored model and print clean accuracies and attack rate. You can also select the other backdoor triggers reported in the paper. 
+This command will train the backdoored model and print clean accuracies and attack rate. You can also select the other backdoor triggers like Grid, Square etc as defined in the data_loader.py class. 
 
-Please carefully read the `train_badnet.py` and `configs.py`, then change the parameters for your experiment.  
 
 ## Acknowledgements
-Much of the code in this repository was adapted from code in **[this paper](https://github.com/bboylyg/NAD)** by Yige Li et al.
+Much of the code in this repository was adapted from code in **[this paper](https://github.com/Zhihao151/MCL/blob/master/main.py)** by Zhihao et al.
 
 ## Other source of backdoor attacks
 #### Attack

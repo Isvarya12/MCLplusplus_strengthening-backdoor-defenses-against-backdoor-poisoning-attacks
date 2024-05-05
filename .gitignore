@@ -1,0 +1,7 @@
+.venv
+logs/
+*.pyc
+results/
+models/
+weight/
+utils/

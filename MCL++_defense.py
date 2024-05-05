@@ -1,6 +1,6 @@
+import os
 import random
 import copy
-
 from data_loader import get_backdoor_loader
 from data_loader import get_train_loader, get_test_loader
 from inversion_torch import PixelBackdoor
@@ -10,12 +10,24 @@ from config import get_arguments
 import torch
 import numpy as np
 from torch.nn import CrossEntropyLoss
+import cv2
+import os.path as osp
 import tqdm
 import matplotlib.pyplot as plt
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+import copy
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+import torch.nn.functional as F
+from sklearn.manifold import TSNE
+from datetime import datetime
 from utils import Normalizer, Denormalizer
 
 normalize = None
-import os
+
 
 # Suppress the UserWarning from joblib
 os.environ["LOKY_MAX_CPU_COUNT"] = "12"  # Replace "8" with the number of physical cores on your system
@@ -64,9 +76,6 @@ def inversion(args, model, target_label, train_loader):
     print('@after attack w trigger function')
 
     return pattern
-
-import cv2
-import os.path as osp
 def apply_gaussian_filter(image, kernel_size=(5, 5), sigma=1.0):
     
     return cv2.GaussianBlur(image, kernel_size, sigma)
@@ -98,82 +107,6 @@ def attack_with_trigger(args, model, train_loader, target_label, pattern):
         print("Accuracy on trojaned images after adaptive filtering:", correct / total)
 
 
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-import copy
-
-# def train_step(opt, train_loader, nets, optimizer, criterions, pattern, epoch, kmeans_clusters):
-#     global normalize
-
-#     model = nets['model']
-#     backup = nets['victimized_model']
-
-#     criterionCls = criterions['criterionCls']
-#     cos = torch.nn.CosineSimilarity(dim=-1)
-#     mse_loss = torch.nn.MSELoss()
-
-#     model.train()
-#     backup.eval()   
-
-#     for idx, (data, label) in enumerate(train_loader, start=1):
-#         data, label = data.clone().cpu(), label.clone().cpu()
-
-#         negative_data = copy.deepcopy(data)
-#         negative_data = torch.clamp(negative_data + pattern, 0, 1)
-
-#         data = normalize(data)
-#         negative_data = normalize(negative_data)
-
-#         feature1 = model.get_final_fm(negative_data)
-
-#         # Apply k-means clustering to features
-#         cluster_assignments = kmeans_clustering(feature1, k=kmeans_clusters)
-
-#         # Use cluster assignments as labels
-#         labels = cluster_assignments
-
-#         posi = cos(feature1, backup.get_final_fm(data).detach())
-#         logits = posi.reshape(-1, 1)
-
-#         feature3 = backup.get_final_fm(negative_data)
-#         nega = cos(feature1, feature3.detach())
-#         logits = torch.cat((logits, nega.reshape(-1, 1)), dim=1)
-
-#         logits /= opt.temperature
-#         cmi_loss = criterionCls(logits, labels)
-
-#         anchor = model.get_final_fm(data)
-#         positive = backup.get_final_fm(data)
-#         negative = backup.get_final_fm(negative_data)
-
-#         triplet_loss = torch.triplet_margin_loss(anchor, positive, negative, margin=1.0)
-
-#         alpha = 1.0  
-#         beta = 1.0   
-
-#         loss = alpha * cmi_loss + beta * triplet_loss
-#         loss=loss.mean()
-
-#         optimizer.zero_grad()
-#         loss.backward()
-#         optimizer.step()
-        
-
-#         if idx % opt.print_freq == 0:
-#             print('Epoch: [{0}][{1}/{2}]\t'
-#                   'Loss {loss:.4f}'.format(epoch, idx, len(train_loader), loss=loss.item()))
-    
-#     print("Training step completed.")
-import matplotlib.pyplot as plt
-from sklearn.manifold import TSNE
-import os
-from datetime import datetime
-
-import os
-from datetime import datetime
-
 def visualize_tsne(features, labels, title):
     concatenated_features = np.concatenate(features, axis=0)  # Concatenate the list of features
     tsne = TSNE(n_components=2, random_state=42)
@@ -186,9 +119,7 @@ def visualize_tsne(features, labels, title):
     plt.clim(-0.5, 9.5)
     plt.xlabel("t-SNE feature 1")
     plt.ylabel("t-SNE feature 2")
-    
- 
-    
+
     # Save the t-SNE visualization
   
     plt.show()
@@ -266,9 +197,6 @@ def train_step(opt, train_loader, nets, optimizer, criterions, pattern, epoch, k
     print("Training step completed.")
 
 
-
-from sklearn.cluster import KMeans
-import torch.nn.functional as F
 
 
 def kmeans_clustering(data, k, num_classes=2):
